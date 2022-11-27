@@ -1,8 +1,7 @@
-package ru.anton.asmirko
+package ru.anton.asmirko.parser
 
 interface Tree<T> {
-    val lChild: Tree<T>?
-    val rChild: Tree<T>?
+    val children: MutableList<Tree<T>>
     val `value`: T
     var isTerminal: Boolean
 }

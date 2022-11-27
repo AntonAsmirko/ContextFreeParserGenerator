@@ -20,6 +20,7 @@ version = "1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 dependencies {
+    implementation(project(":GrammarUtills"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
     testImplementation("com.google.truth:truth:1.1.3")

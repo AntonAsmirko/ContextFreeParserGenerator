@@ -9,5 +9,6 @@ pluginManagement {
 rootProject.name = "RegexParser"
 
 include(
-    "GrammarUtills"
+    "GrammarUtills",
+    "Parser"
 )

@@ -1,9 +1,8 @@
-package ru.anton.asmirko
+package ru.anton.asmirko.parser
 
 class RegexTree(
-    override val lChild: Tree<Char>?,
-    override val rChild: Tree<Char>?,
     override val value: Char,
-    override var isTerminal: Boolean
+    override var isTerminal: Boolean = false,
+    override val children: MutableList<Tree<Char>> = mutableListOf()
 ) : Tree<Char> {
 }

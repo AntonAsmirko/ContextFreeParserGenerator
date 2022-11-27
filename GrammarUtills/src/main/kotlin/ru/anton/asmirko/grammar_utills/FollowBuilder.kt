@@ -75,4 +75,4 @@ class FollowBuilder(private val grammar: Grammar) {
     }
 }
 
-typealias Follow = Map<Char, Set<Char>>
+typealias Follow = Map<Char, MutableSet<Char>>

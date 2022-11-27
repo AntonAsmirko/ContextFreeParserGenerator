@@ -47,4 +47,4 @@ class FirstBuilder(private val grammar: Grammar) {
     }
 }
 
-typealias First = Map<Char, Set<Char>>
+typealias First = Map<Char, MutableSet<Char>>
