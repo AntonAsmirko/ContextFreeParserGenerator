@@ -2,12 +2,25 @@ package ru.anton.asmirko.grammar_utills
 
 fun main() {
     val grammar = """
-       S -> F
-       S -> (S+F)
+       E -> TX
+       X -> +TX
+       X -> ε
+       T -> FY
+       Y -> *FY
+       Y -> ε
        F -> a
+       F -> (E)
     """.trimIndent()
     val grammarResolver = GrammarResolver()
-    val resolvedGrammar = grammarResolver.resolveGrammar(grammar)
+    val resolvedGrammar = grammarResolver.resolveGrammar(
+        grammar = grammar,
+        nonTerminals = listOf('E', 'X', 'T', 'Y', 'F'),
+        aLattice = ('0'..'9').toSet(),
+        otherLattice = setOf('*', '+', ')', '('),
+        epsilon = 'ε',
+        bucks = '$',
+        latticeSubstitute = 'a'
+    )
     println(resolvedGrammar)
     val firstBuilder = FirstBuilder(resolvedGrammar)
     val firstSets = firstBuilder.buildFirstSets()
@@ -15,6 +28,4 @@ fun main() {
     val followBuilder = FollowBuilder(resolvedGrammar)
     val follow = followBuilder.buildFollowSets()
     println(follow)
-    val verifier = LL1GrammarVerifier(resolvedGrammar)
-    println(verifier.isLL1())
 }

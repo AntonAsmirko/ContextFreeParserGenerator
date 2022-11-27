@@ -1,50 +1,52 @@
 package ru.anton.asmirko.grammar_utills
 
 import ru.anton.asmirko.grammar_utills.data.Grammar
+import ru.anton.asmirko.grammar_utills.data.TerminalToken
+import ru.anton.asmirko.grammar_utills.data.Token
 
-class FirstBuilder(private val grammar: Grammar) {
+class FirstBuilder<T>(private val grammar: Grammar<T>) {
 
-    private val firstSets = mutableMapOf<Char, MutableSet<Char>>()
+    private val firstSets = mutableMapOf<Token<T>, MutableSet<Token<T>>>()
 
-    fun buildFirstSets(): First {
+    fun buildFirstSets(): First<T> {
         for (rule in grammar.rules) {
             firstOf(rule.nonTerminal)
         }
-        if (firstSets.containsKey(EPSILON)) {
-            firstSets.remove(EPSILON)
+        if (firstSets.containsKey(grammar.epsilonToken)) {
+            firstSets.remove(grammar.epsilonToken)
         }
         return firstSets
     }
 
-    private fun firstOf(ch: Char): MutableSet<Char> {
-        if (firstSets[ch] != null) {
-            return firstSets[ch]!!
+    private fun firstOf(token: Token<T>): MutableSet<Token<T>> {
+        if (firstSets.containsKey(token)) {
+            return firstSets[token]!!
         }
-        if (!ch.isUpperCase()) {
-            val first = mutableSetOf(ch)
-            firstSets[ch] = first
-            return first
-        }
-        val first = grammar.rules.filter { it.nonTerminal == ch }
-            .map {
-                val f0 = firstOf(it.rightSide[0]).map { it }.toMutableSet()
-                var i = 1
-                while (f0.contains(EPSILON) && i < it.rightSide.length) {
-                    f0.remove(EPSILON)
-                    f0.addAll(firstOf(it.rightSide[i]))
-                    i++
-                }
-                f0
+        return when (token) {
+            is TerminalToken -> {
+                val first: MutableSet<Token<T>> = mutableSetOf(token)
+                firstSets[token] = first
+                first
             }
-            .flatten()
-            .toMutableSet()
-        firstSets[ch] = first
-        return first
-    }
-
-    companion object {
-        const val EPSILON = 'ε'
+            else -> {
+                val first = grammar.rules.filter { it.nonTerminal == token }
+                    .map {
+                        val f0 = firstOf(it.rightSide[0]).map { it }.toMutableSet()
+                        var i = 1
+                        while (f0.contains(grammar.epsilonToken) && i < it.rightSide.size) {
+                            f0.remove(grammar.epsilonToken)
+                            f0.addAll(firstOf(it.rightSide[i]))
+                            i++
+                        }
+                        f0
+                    }
+                    .flatten()
+                    .toMutableSet()
+                firstSets[token] = first
+                first
+            }
+        }
     }
 }
 
-typealias First = Map<Char, MutableSet<Char>>
+typealias First<T> = Map<Token<T>, MutableSet<Token<T>>>
