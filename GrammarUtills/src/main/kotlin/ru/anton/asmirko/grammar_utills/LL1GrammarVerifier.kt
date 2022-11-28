@@ -1,7 +1,5 @@
 package ru.anton.asmirko.grammar_utills
 
-import ru.anton.asmirko.grammar_utills.data.Grammar
-
 //class LL1GrammarVerifier<T>(private val grammar: Grammar<T>) {
 //    private val firstSets = FirstBuilder(grammar).buildFirstSets()
 //    private val followSets = FollowBuilder(grammar).buildFollowSets()

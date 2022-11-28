@@ -10,5 +10,10 @@ rootProject.name = "RegexParser"
 
 include(
     "GrammarUtills",
-    "Parser"
+    "Parser",
+    "Core",
+    "Grammar",
+    "Lexer",
+    "Tree",
+    "GraphViz"
 )

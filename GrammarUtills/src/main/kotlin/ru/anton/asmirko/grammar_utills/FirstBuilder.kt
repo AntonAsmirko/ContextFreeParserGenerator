@@ -1,8 +1,8 @@
 package ru.anton.asmirko.grammar_utills
 
-import ru.anton.asmirko.grammar_utills.data.Grammar
-import ru.anton.asmirko.grammar_utills.data.TerminalToken
-import ru.anton.asmirko.grammar_utills.data.Token
+import ru.anton.asmirko.grammar.Grammar
+import ru.anton.asmirko.grammar.TerminalToken
+import ru.anton.asmirko.grammar.Token
 
 class FirstBuilder<T>(private val grammar: Grammar<T>) {
 
