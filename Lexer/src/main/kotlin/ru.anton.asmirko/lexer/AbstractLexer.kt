@@ -1,12 +1,12 @@
-package lexer
+package ru.anton.asmirko.lexer
 
 import ru.anton.asmirko.grammar.Grammar
 import ru.anton.asmirko.grammar.NonTerminalToken
 import ru.anton.asmirko.grammar.TerminalToken
 import ru.anton.asmirko.grammar.Token
-import ru.anton.asmirko.lexer.Lexer
+import ru.anton.asmirko.lexer.exception.LexerException
 
-abstract class AbstractLexer<T>(private val grammar: Grammar<T>) : Lexer<T> {
+abstract class AbstractLexer<T>(private val grammar: Grammar<T>, override val eof: T) : Lexer<T> {
     private var curPos = -1
     private var curT: T? = null
     private var curToken: Token<T>? = null
@@ -16,9 +16,10 @@ abstract class AbstractLexer<T>(private val grammar: Grammar<T>) : Lexer<T> {
 
     private fun nextT() {
         curPos++
-        if (curPos < str!!.size) {
-            curT = str!![curPos]
+        if (curPos >= str!!.size) {
+            throw LexerException("Read attempt after EOF")
         }
+        curT = str!![curPos]
     }
 
     final override fun nextToken() {
@@ -34,10 +35,12 @@ abstract class AbstractLexer<T>(private val grammar: Grammar<T>) : Lexer<T> {
     }
 
     override fun init(str: List<T>) {
-        this.str = str
+        this.str = mutableListOf<T>().apply {
+            addAll(str)
+            add(eof)
+        }
         curPos = -1
-        nextT()
-        curToken = getToken(curT!!)
+        nextToken()
     }
 
     override fun curPos(): Int {
@@ -45,12 +48,15 @@ abstract class AbstractLexer<T>(private val grammar: Grammar<T>) : Lexer<T> {
     }
 
     private fun getToken(chunk: T): Token<T> {
-        return when (chunk) {
-            in grammar.aLattice -> TerminalToken(chunk)
-            in grammar.otherLattice -> TerminalToken(chunk)
-            grammar.epsilonToken -> grammar.epsilonToken
-            grammar.bucksToken -> grammar.bucksToken
-            else -> NonTerminalToken(chunk)
+        return if (grammar.latticeSubstitute.values.any { chunk in it }
+            || chunk == eof || chunk in grammar.otherLattice) {
+            TerminalToken(chunk)
+        } else if (chunk == grammar.epsilonToken.value) {
+            grammar.epsilonToken
+        } else if (chunk == grammar.bucksToken.value) {
+            grammar.bucksToken
+        } else {
+            NonTerminalToken(chunk)
         }
     }
 }

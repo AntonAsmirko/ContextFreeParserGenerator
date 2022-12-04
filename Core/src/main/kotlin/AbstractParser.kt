@@ -1,7 +1,9 @@
-import ru.anton.asmirko.lexer.Lexer
+import exception.EOFException
+import exception.UnmatchedSymbolException
 import ru.anton.asmirko.grammar.*
 import ru.anton.asmirko.grammar_utills.FirstBuilder
 import ru.anton.asmirko.grammar_utills.FollowBuilder
+import ru.anton.asmirko.lexer.Lexer
 import ru.anton.asmirko.tree.Tree
 import ru.anton.asmirko.tree.TreeImpl
 
@@ -15,11 +17,15 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
 
     override fun parse(str: List<T>): Tree<T> {
         lexer.init(str)
-        return mapWithRules[grammar.startNonTerminal]!!()
+        val result = mapWithRules[grammar.startNonTerminal]!!()
+        if (lexer.curToken().value != lexer.eof) {
+            throw EOFException("EOF was not reached, last position: ${lexer.curPos()}")
+        }
+        return result
     }
 
     private fun makeRuleLambda(nonTerm: Token<T>): () -> Tree<T> {
-        val lambda = {
+        return {
             val rulesWithNonTerm = grammar.rules.filter { it.nonTerminal == nonTerm }
             val r = TreeImpl(value = nonTerm)
             for (rule in rulesWithNonTerm) {
@@ -28,11 +34,32 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
                     for (index in rule.rightSide.indices) {
                         wasEnter = true
                         if (rule.rightSide[index] is TerminalToken) {
-                            if (rule.rightSide[index] == grammar.epsilonToken) {
-                                r.children.add(TreeImpl(value = grammar.epsilonToken))
-                            } else {
-                                r.children.add(TreeImpl(value = lexer.curToken()))
-                                lexer.nextToken()
+                            when {
+                                rule.rightSide[index] == grammar.epsilonToken -> {
+                                    r.children.add(TreeImpl(value = grammar.epsilonToken))
+                                }
+                                grammar.latticeSubstitute.map { Pair(it.key, it.value) }
+                                    .firstOrNull { it.first == rule.rightSide[index] }
+                                    ?.second
+                                    ?.contains(lexer.curToken().value)
+                                    ?.not()
+                                    ?: false -> {
+                                    throw UnmatchedSymbolException(
+                                        msg = """Token at position ${lexer.curPos()} \"${lexer.curToken()}\" does not match symbol at grammar \"${rule.rightSide[index]}\
+                                            which is lattice substitute an can have only this values [${grammar.latticeSubstitute[lexer.curToken()]!!.joinToString()}]
+                                        """.trimMargin()
+                                    )
+                                }
+                                grammar.latticeSubstitute.keys.none { it == rule.rightSide[index] }
+                                        && lexer.curToken() != rule.rightSide[index] -> {
+                                    throw UnmatchedSymbolException(
+                                        msg = "Token at position ${lexer.curPos()} \"${lexer.curToken()}\" does not match symbol at grammar \"${rule.rightSide[index]}\""
+                                    )
+                                }
+                                else -> {
+                                    r.children.add(TreeImpl(value = lexer.curToken()))
+                                    lexer.nextToken()
+                                }
                             }
                         } else {
                             r.children.add(mapWithRules[rule.rightSide[index]]!!())
@@ -45,7 +72,6 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
             }
             r
         }
-        return lambda
     }
 
     private fun firstOne(rule: Rule<T>, ch: Token<T>): Boolean {
@@ -58,10 +84,14 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
             val followNonTerm = followSets[rule.nonTerminal]!!
             firstCh.addAll(followNonTerm)
         }
-        return if (ch.value in grammar.aLattice) {
-            firstCh.contains(grammar.latticeSubstitute)
+        val (tokenSub, options) = grammar.latticeSubstitute.filter { ch.value in it.value }
+            .map { Pair(it.key, it.value) }
+            .firstOrNull()
+            ?: Pair(grammar.bucksToken, setOf())
+        return if (ch.value in options) {
+            firstCh.contains(tokenSub)
         } else {
-            return firstCh.contains(ch)
+            firstCh.contains(ch)
         }
     }
 }

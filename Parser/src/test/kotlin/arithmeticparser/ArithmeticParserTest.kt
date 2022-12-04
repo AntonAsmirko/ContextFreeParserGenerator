@@ -1,14 +1,16 @@
 package arithmeticparser
 
 import com.google.common.truth.Truth
+import org.junit.Assert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import ru.anton.asmirko.grammar.TerminalToken
 import ru.anton.asmirko.grammar.Token
 import ru.anton.asmirko.parser.GrammarResolver
-import ru.anton.asmirko.parser.lexer.RegexLexer
-import ru.anton.asmirko.parser.parser.RegexParser
+import ru.anton.asmirko.parser.lexer.ArithmeticsLexer
+import ru.anton.asmirko.parser.parser.ArithmeticExprParser
 import ru.anton.asmirko.tree.Tree
 
 class ArithmeticParserTest {
@@ -27,13 +29,14 @@ class ArithmeticParserTest {
     private val grammarResolver = GrammarResolver()
     private val resolvedGrammar = grammarResolver.resolveGrammar(
         grammar, nonTerminals = listOf('E', 'X', 'T', 'Y', 'F'),
-        aLattice = ('0'..'9').toMutableSet(),
         otherLattice = setOf('*', '+', '(', ')'),
         epsilon = 'ε',
         bucks = '$',
-        latticeSubstitute = 'a'
+        latticeSubstitute = mapOf(
+            TerminalToken('a') to ('0'..'9').toSet()
+        )
     )
-    private val lexer = RegexLexer(resolvedGrammar)
+    private val lexer = ArithmeticsLexer(resolvedGrammar)
 
     @BeforeEach
     internal fun setUp() {
@@ -53,13 +56,35 @@ class ArithmeticParserTest {
             "(1 + 2 + 4) * 4, (1+2+4)*4"
         ]
     )
-    fun test1(expr: String, expected: String) {
-        val parser = RegexParser(resolvedGrammar, lexer)
+    fun `test positive cases`(expr: String, expected: String) {
+        val parser = ArithmeticExprParser(resolvedGrammar, lexer)
         val expectedTokens = expected.map { TerminalToken(it) }
         val tree = parser.parse(expr.toList())
         getTerminalTokens(tree)
         Truth.assertThat(tokens).isEqualTo(expectedTokens)
 
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "1 +",
+            "+ 1",
+            "1+1)",
+            "(1",
+            "1 1",
+            "+",
+            "(1("
+        ]
+    )
+    fun `test negative cases`(expr: String) {
+        val parser = ArithmeticExprParser(resolvedGrammar, lexer)
+        try {
+            parser.parse(expr.toList())
+            Assert.fail()
+        } catch (e: Exception) {
+            println(e.message)
+        }
     }
 
     private fun getTerminalTokens(tree: Tree<*>) {

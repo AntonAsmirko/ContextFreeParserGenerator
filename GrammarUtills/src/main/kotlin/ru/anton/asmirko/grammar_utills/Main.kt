@@ -1,31 +1,96 @@
 package ru.anton.asmirko.grammar_utills
 
+import ru.anton.asmirko.grammar.*
+
 fun main() {
-//    val grammar = """
-//       E -> TX
-//       X -> +TX
-//       X -> ε
-//       T -> FY
-//       Y -> *FY
-//       Y -> ε
-//       F -> a
-//       F -> (E)
-//    """.trimIndent()
-//    val grammarResolver = GrammarResolver()
-//    val resolvedGrammar = grammarResolver.resolveGrammar(
-//        grammar = grammar,
-//        nonTerminals = listOf('E', 'X', 'T', 'Y', 'F'),
-//        aLattice = ('0'..'9').toSet(),
-//        otherLattice = setOf('*', '+', ')', '('),
-//        epsilon = 'ε',
-//        bucks = '$',
-//        latticeSubstitute = 'a'
-//    )
-//    println(resolvedGrammar)
-//    val firstBuilder = FirstBuilder(resolvedGrammar)
-//    val firstSets = firstBuilder.buildFirstSets()
-//    println(firstSets)
-//    val followBuilder = FollowBuilder(resolvedGrammar)
-//    val follow = followBuilder.buildFollowSets()
-//    println(follow)
+
+    val rules = mutableListOf(
+        Rule(
+            nonTerminal = NonTerminalToken("S"),
+            rightSide = listOf(NonTerminalToken("Or"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("S"),
+            rightSide = listOf(TerminalToken("^"), NonTerminalToken("Or"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("S"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("Or"),
+            rightSide = listOf(
+                NonTerminalToken("And"),
+                NonTerminalToken("Or'")
+            )
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("Or'"),
+            rightSide = listOf(TerminalToken("|"), NonTerminalToken("Or"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("Or'"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("And"),
+            rightSide = listOf(NonTerminalToken("St"), NonTerminalToken("And'"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("And'"),
+            rightSide = listOf(NonTerminalToken("And"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("And'"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("St"),
+            rightSide = listOf(NonTerminalToken("C"), NonTerminalToken("St'"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("St'"),
+            rightSide = listOf(TerminalToken("!"), NonTerminalToken("St"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("St'"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("C"),
+            rightSide = listOf(TerminalToken("("), NonTerminalToken("Or"), TerminalToken(")"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("C"),
+            rightSide = listOf(TerminalToken("char"))
+        )
+    )
+    val grammar = Grammar(
+        rules = rules,
+        nonTerminals = setOf(
+            NonTerminalToken("S"),
+            NonTerminalToken("Or"),
+            NonTerminalToken("Or'"),
+            NonTerminalToken("And"),
+            NonTerminalToken("And'"),
+            NonTerminalToken("St"),
+            NonTerminalToken("St'"),
+            NonTerminalToken("C")
+        ),
+        otherLattice = setOf("|", "*", "(", ")", "?", "+", "^"),
+        epsilonToken = EpsilonToken("ε"),
+        bucksToken = BucksToken("$"),
+        startNonTerminal = NonTerminalToken("S"),
+        latticeSubstitute = mapOf(
+            TerminalToken("char") to ('a'..'z').map { it.toString() }.toSet(),
+            TerminalToken("!") to setOf("?", "*", "+")
+        )
+    )
+
+    val firstBuilder = FirstBuilder(grammar)
+    val firstSets = firstBuilder.buildFirstSets()
+    println(firstSets)
+    val followBuilder = FollowBuilder(grammar)
+    val follow = followBuilder.buildFollowSets()
+    println(follow)
 }

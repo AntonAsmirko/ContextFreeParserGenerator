@@ -1,11 +1,10 @@
 package ru.anton.asmirko.parser.lexer
 
-import lexer.AbstractLexer
 import ru.anton.asmirko.grammar.Grammar
+import ru.anton.asmirko.lexer.AbstractLexer
 
-class RegexLexer(grammar: Grammar<Char>) : AbstractLexer<Char>(grammar) {
-
-    override fun isBlank(t: Char): Boolean {
-        return t.isWhitespace()
+class RegexLexer(grammar: Grammar<String>) : AbstractLexer<String>(grammar, "EOF") {
+    override fun isBlank(t: String): Boolean {
+        return false
     }
 }

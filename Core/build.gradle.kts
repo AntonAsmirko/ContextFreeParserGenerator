@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     dependencies {
         classpath(
@@ -20,6 +22,7 @@ version = "1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 dependencies {
+    implementation(kotlin("stdlib-jdk8"))
     implementation(project(":GrammarUtills"))
     implementation(project(":Grammar"))
     implementation(project(":Lexer"))
@@ -28,7 +31,15 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("io.mockk:mockk:1.12.1")
+    implementation(kotlin("stdlib-jdk8"))
 }
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+repositories {
+    mavenCentral()
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
 }

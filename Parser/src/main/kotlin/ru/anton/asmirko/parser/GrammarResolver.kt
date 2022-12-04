@@ -7,11 +7,10 @@ class GrammarResolver {
     fun resolveGrammar(
         grammar: String,
         nonTerminals: List<Char>,
-        aLattice: Set<Char>,
         otherLattice: Set<Char>,
         epsilon: Char,
         bucks: Char,
-        latticeSubstitute: Char
+        latticeSubstitute: Map<TerminalToken<Char>, Set<Char>>
     ): Grammar<Char> {
         val rules = grammar.split("\n")
             .map { strRule ->
@@ -35,12 +34,11 @@ class GrammarResolver {
         return Grammar(
             rules = rules,
             nonTerminals = nonTerminals.map { NonTerminalToken(it) }.toSet(),
-            aLattice = aLattice,
             otherLattice = otherLattice,
             epsilonToken = EpsilonToken(epsilon),
             bucksToken = BucksToken(bucks),
             startNonTerminal = rules.first().nonTerminal,
-            latticeSubstitute = TerminalToken(latticeSubstitute)
+            latticeSubstitute = latticeSubstitute
         )
     }
 }

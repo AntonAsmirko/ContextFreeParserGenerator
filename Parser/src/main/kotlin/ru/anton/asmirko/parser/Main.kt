@@ -2,11 +2,13 @@ package ru.anton.asmirko.parser
 
 import ru.anton.asmirko.grammar.*
 import ru.anton.asmirko.graphviz.TreeDrawer
+import ru.anton.asmirko.parser.lexer.ArithmeticsLexer
 import ru.anton.asmirko.parser.lexer.RegexLexer
+import ru.anton.asmirko.parser.parser.ArithmeticExprParser
 import ru.anton.asmirko.parser.parser.RegexParser
 
 fun main() {
-    runArithmeticsParser()
+    runRegexParser()
 }
 
 fun runArithmeticsParser() {
@@ -23,14 +25,15 @@ fun runArithmeticsParser() {
     val grammarResolver = GrammarResolver()
     val resolvedGrammar = grammarResolver.resolveGrammar(
         grammar, nonTerminals = listOf('E', 'X', 'T', 'Y', 'F'),
-        aLattice = ('0'..'9').toMutableSet(),
         otherLattice = setOf('*', '+', '(', ')'),
         epsilon = 'ε',
         bucks = '$',
-        latticeSubstitute = 'a'
+        latticeSubstitute = mapOf(
+            TerminalToken('a') to ('0' .. '9').toSet()
+        )
     )
-    val lexer = RegexLexer(resolvedGrammar)
-    val parser = RegexParser(resolvedGrammar, lexer)
+    val lexer = ArithmeticsLexer(resolvedGrammar)
+    val parser = ArithmeticExprParser(resolvedGrammar, lexer)
     val toPlot = listOf(
         "1 + 3 * ( 2 +    1 )",
         "1",
@@ -45,92 +48,120 @@ fun runArithmeticsParser() {
         val treeDrawer = TreeDrawer()
         treeDrawer.drawTree(result, item, "graphs/arithmetics")
     }
+}
 
-    /**
-    E -> O
-    E -> ε
-    O -> CX
-    X -> |O
-    X -> ε
-    C -> SA
-    A -> C
-    A -> ε
-    S -> TA
-
-    E2 abc|d
-    ---------------
-    T
-     */
-    fun runRegexParser() {
-        val grammar = Grammar<String>(
-            rules = mutableListOf(
-                Rule(
-                    nonTerminal = NonTerminalToken("S"),
-                    rightSide = listOf(NonTerminalToken("Or"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("S"),
-                    rightSide = listOf(TerminalToken("ε"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("Or"),
-                    rightSide = listOf(
-                        NonTerminalToken("And"),
-                        NonTerminalToken("Or'")
-                    )
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("Or'"),
-                    rightSide = listOf(TerminalToken("|"), NonTerminalToken("Or"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("Or'"),
-                    rightSide = listOf(TerminalToken("ε"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("And"),
-                    rightSide = listOf(NonTerminalToken("St"), NonTerminalToken("And'"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("And'"),
-                    rightSide = listOf(NonTerminalToken("And"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("And'"),
-                    rightSide = listOf(TerminalToken("ε"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("St"),
-                    rightSide = listOf(NonTerminalToken("C"), NonTerminalToken("St'"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("St'"),
-                    rightSide = listOf(TerminalToken("*"), NonTerminalToken("St'"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("St'"),
-                    rightSide = listOf(NonTerminalToken("ε"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("C"),
-                    rightSide = listOf(TerminalToken("("), NonTerminalToken("Or"), TerminalToken(")"))
-                ),
-                Rule(
-                    nonTerminal = NonTerminalToken("C"),
-                    rightSide = listOf(TerminalToken("char"))
-                )
-            ),
-            nonTerminals = setOf(
-                NonTerminalToken("S"),
-                NonTerminalToken("Or"),
-                NonTerminalToken("Or'"),
+/**
+ *  S -> Or
+ *  S -> eps
+ *
+ *  Or -> AndOr'
+ *  Or' -> |Or
+ *  Or' -> eps
+ *
+ *  And -> StAnd'
+ *  And' -> And
+ *  And -> eps
+ *
+ *  St -> CSt'
+ *  St' -> *St'
+ *  St' -> eps
+ *
+ *  C -> (Or)
+ *  C -> char
+ */
+fun runRegexParser() {
+    val rules = mutableListOf(
+        Rule(
+            nonTerminal = NonTerminalToken("S"),
+            rightSide = listOf(NonTerminalToken("Or"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("S"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("Or"),
+            rightSide = listOf(
                 NonTerminalToken("And"),
-                NonTerminalToken("And'"),
-                NonTerminalToken("St"),
-                NonTerminalToken("St'"),
-                NonTerminalToken("C")
-            ),
-            aLati
+                NonTerminalToken("Or'")
+            )
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("Or'"),
+            rightSide = listOf(TerminalToken("|"), NonTerminalToken("Or"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("Or'"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("And"),
+            rightSide = listOf(NonTerminalToken("St"), NonTerminalToken("And'"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("And'"),
+            rightSide = listOf(NonTerminalToken("And"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("And'"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("St"),
+            rightSide = listOf(NonTerminalToken("C"), NonTerminalToken("St'"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("St'"),
+            rightSide = listOf(TerminalToken("*"), NonTerminalToken("St'"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("St'"),
+            rightSide = listOf(TerminalToken("ε"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("C"),
+            rightSide = listOf(TerminalToken("("), NonTerminalToken("Or"), TerminalToken(")"))
+        ),
+        Rule(
+            nonTerminal = NonTerminalToken("C"),
+            rightSide = listOf(TerminalToken("char"))
         )
+    )
+    val grammar = Grammar(
+        rules = rules,
+        nonTerminals = setOf(
+            NonTerminalToken("S"),
+            NonTerminalToken("Or"),
+            NonTerminalToken("Or'"),
+            NonTerminalToken("And"),
+            NonTerminalToken("And'"),
+            NonTerminalToken("St"),
+            NonTerminalToken("St'"),
+            NonTerminalToken("C")
+        ),
+        otherLattice = setOf("|", "*"),
+        epsilonToken = EpsilonToken("ε"),
+        bucksToken = BucksToken("$"),
+        startNonTerminal = NonTerminalToken("S"),
+        latticeSubstitute = mapOf(
+            TerminalToken("char") to ('a' .. 'z').map { it.toString() }.toSet()
+        )
+    )
+    val lexer = RegexLexer(grammar)
+    val parser = RegexParser(grammar, lexer)
+    val toPlot = listOf(
+        "ab|cd",
+        "(abc)*|d",
+        "(a)*bc|de|f*",
+        "a",
+        "abc",
+        "a*",
+        "(x|y|z*abc)",
+        "(a)"
+    )
+    for (item in toPlot) {
+        val result = parser.parse(item.toList().map { it.toString() })
+        val treeDrawer = TreeDrawer()
+        treeDrawer.drawTree(result, item, "graphs/regex")
     }
 }

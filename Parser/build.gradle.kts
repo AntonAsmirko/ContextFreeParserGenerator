@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     dependencies {
         classpath(
@@ -12,6 +14,7 @@ apply(plugin = "org.jetbrains.kotlin.jvm")
 
 plugins {
     id("java")
+//    kotlin("jvm") version "1.5.0-release-759"
 }
 
 
@@ -31,14 +34,18 @@ dependencies {
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("io.mockk:mockk:1.12.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
+    implementation(kotlin("stdlib-jdk8"))
 }
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict", "-Xmx8g")
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
+}
+repositories {
+    mavenCentral()
 }
