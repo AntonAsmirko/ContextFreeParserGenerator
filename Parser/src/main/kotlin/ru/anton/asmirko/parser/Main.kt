@@ -160,8 +160,8 @@ fun runRegexParser() {
         "(a)"
     )
     for (item in toPlot) {
-        val result = parser.parse(item.toList().map { it.toString() })
-        val treeDrawer = TreeDrawer()
-        treeDrawer.drawTree(result, item, "graphs/regex")
+            val result = parser.parse(item.toList().map { it.toString() })
+            val treeDrawer = TreeDrawer()
+            treeDrawer.drawTree(result, item, "graphs/regex")
     }
 }

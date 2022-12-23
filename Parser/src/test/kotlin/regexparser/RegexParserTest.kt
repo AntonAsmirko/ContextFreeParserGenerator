@@ -24,20 +24,20 @@ class RegexParserTest {
     @ParameterizedTest
     @CsvSource(
         value = [
- //           "abacaba, abacaba",
- //           "(a), (a)",
- //           "a, a",
- //           "a(b), a(b)",
- //           "(ab), (ab)",
- //           "a|(ab), a|(ab)",
- //           "a*, a*",
- //           "a, a",
- //           "a*|ab|(cd|ef), a*|ab|(cd|ef)",
- //           "a?, a?",
- //           "a+, a+",
- //           "a+b*, a+b*",
- //           "^a, ^a",
-            "a*bc, a*bc"
+            "abacaba, abacaba",
+            "(a), (a)",
+            "a, a",
+            "a(b), a(b)",
+            "(ab), (ab)",
+            "a|(ab), a|(ab)",
+            "a*, a*",
+            "a, a",
+            "a*|ab|(cd|ef), a*|ab|(cd|ef)",
+            "a*|b*, a*|b*",
+            "a*b*c*d, a*b*c*d",
+            "a|b|c|d, a|b|c|d",
+            "abcd*ef, abcd*ef",
+            "abcd(e)fghi, abcd(e)fghi"
         ],
     )
     fun `test positive cases`(expr: String, expected: String) {
@@ -53,18 +53,17 @@ class RegexParserTest {
     @ParameterizedTest
     @ValueSource(
         strings = [
-//            "*",
-//            "*a",
-//            "|",
-//            "a(",
-//            "a)",
-//            "(a",
-//            ")a",
-//            "(*)(*)",
-//            "(|)",
-//            "|a",
-//            "a??",
-            "a++"
+            "*",
+            "*a",
+            "|",
+            "a(",
+            "a)",
+            "(a",
+            ")a",
+            "(*)(*)",
+            "(|)",
+            "|a",
+            "a**"
         ]
     )
     fun `test negative cases`(expr: String) {
@@ -87,37 +86,11 @@ class RegexParserTest {
         }
     }
 
-    /**
-     *  S -> Or
-     *  S -> ^Or
-     *  S -> eps
-     *
-     *  Or -> AndOr'
-     *  Or' -> |Or
-     *  Or' -> eps
-     *
-     *  And -> StAnd'
-     *  And' -> And
-     *  And -> eps
-     *
-     *  St -> CSt'
-     *  St' -> !St'
-     *  St' -> eps
-     *
-     *
-     *
-     *  C -> (Or)
-     *  C -> char
-     */
     companion object {
-        private val rules = mutableListOf(
+        val rules = mutableListOf(
             Rule(
                 nonTerminal = NonTerminalToken("S"),
                 rightSide = listOf(NonTerminalToken("Or"))
-            ),
-            Rule(
-                nonTerminal = NonTerminalToken("S"),
-                rightSide = listOf(TerminalToken("^"), NonTerminalToken("Or"))
             ),
             Rule(
                 nonTerminal = NonTerminalToken("S"),
@@ -156,7 +129,7 @@ class RegexParserTest {
             ),
             Rule(
                 nonTerminal = NonTerminalToken("St'"),
-                rightSide = listOf(TerminalToken("!"), NonTerminalToken("St"))
+                rightSide = listOf(TerminalToken("*"), NonTerminalToken("St"))
             ),
             Rule(
                 nonTerminal = NonTerminalToken("St'"),
@@ -171,7 +144,7 @@ class RegexParserTest {
                 rightSide = listOf(TerminalToken("char"))
             )
         )
-        private val grammar = Grammar(
+        val grammar = Grammar(
             rules = rules,
             nonTerminals = setOf(
                 NonTerminalToken("S"),
@@ -183,13 +156,12 @@ class RegexParserTest {
                 NonTerminalToken("St'"),
                 NonTerminalToken("C")
             ),
-            otherLattice = setOf("|", "*", "(", ")", "?", "+", "^"),
+            otherLattice = setOf("|", "*", "(", ")"),
             epsilonToken = EpsilonToken("ε"),
             bucksToken = BucksToken("$"),
             startNonTerminal = NonTerminalToken("S"),
             latticeSubstitute = mapOf(
-                TerminalToken("char") to ('a'..'z').map { it.toString() }.toSet(),
-                TerminalToken("!") to setOf("?", "*", "+")
+                TerminalToken("char") to ('a' .. 'z').map { it.toString() }.toSet()
             )
         )
     }

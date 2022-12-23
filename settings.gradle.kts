@@ -2,6 +2,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         google()
+        gradlePluginPortal()
     }
 }
 
@@ -15,5 +16,6 @@ include(
     "Grammar",
     "Lexer",
     "Tree",
-    "GraphViz"
+    "GraphViz",
+    "AntlrCalculator"
 )
