@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 buildscript {
     dependencies {
         classpath(
@@ -61,8 +59,12 @@ repositories {
     mavenCentral()
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "11"
-}
+val compileJava: JavaCompile by tasks
+compileJava.source(tasks.generateGrammarSource)
+compileJava.dependsOn(tasks.generateGrammarSource)
+
+//val compileKotlin: KotlinCompile by tasks
+//compileKotlin.kotlinOptions {
+//    jvmTarget = "11"
+//}
 

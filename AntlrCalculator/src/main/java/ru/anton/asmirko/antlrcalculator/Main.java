@@ -2,8 +2,6 @@ package ru.anton.asmirko.antlrcalculator;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import ru.anton.asmirko.antlrcalculator.antlr.ExprLexer;
-import ru.anton.asmirko.antlrcalculator.antlr.ExprParser;
 import ru.anton.asmirko.graphviz.TreeDrawer;
 import ru.anton.asmirko.tree.TreeWithAttributes;
 
@@ -25,7 +23,7 @@ public class Main {
             var treeInternal = exprTreeVisitor.visit(tree);
             var treeDrawer = new TreeDrawer();
             treeDrawer.drawTree(treeInternal, "first-test", "graphs/antlr-calc");
-            System.out.println(((TreeWithAttributes) treeInternal).yield());
+            System.out.println(((TreeWithAttributes<String, String>) treeInternal).yield());
         } catch (Exception e) {
             e.printStackTrace();
         }

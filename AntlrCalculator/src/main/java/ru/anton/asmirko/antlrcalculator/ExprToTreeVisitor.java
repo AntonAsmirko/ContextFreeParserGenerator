@@ -2,8 +2,6 @@ package ru.anton.asmirko.antlrcalculator;
 
 import kotlin.text.Regex;
 import org.antlr.v4.runtime.ParserRuleContext;
-import ru.anton.asmirko.antlrcalculator.antlr.ExprBaseVisitor;
-import ru.anton.asmirko.antlrcalculator.antlr.ExprParser;
 import ru.anton.asmirko.grammar.NonTerminalToken;
 import ru.anton.asmirko.grammar.TerminalToken;
 import ru.anton.asmirko.tree.Tree;
@@ -83,8 +81,13 @@ public class ExprToTreeVisitor extends ExprBaseVisitor<Tree<String>> {
                             .map(child -> ((TreeWithAttributes) child).yield())
                             .map(Object::toString)
                             .collect(Collectors.toList());
-                    variablesValues.put(attrs.get(0), attrs.get(1));
-                    return String.format("%s = %s", attrs.get(0), attrs.get(1));
+                    if (varRegex.matches(attrs.get(1))) {
+                        variablesValues.put(attrs.get(0), handleVariable(attrs.get(1)));
+                        return String.format("%s = %s", attrs.get(0), handleVariable(attrs.get(1)));
+                    } else {
+                        variablesValues.put(attrs.get(0), attrs.get(1));
+                        return String.format("%s = %s", attrs.get(0), attrs.get(1));
+                    }
                 }
         );
     }
@@ -107,7 +110,7 @@ public class ExprToTreeVisitor extends ExprBaseVisitor<Tree<String>> {
                             .map(child -> ((TreeWithAttributes<String, String>) child).yield())
                             .map(Object::toString)
                             .collect(Collectors.toList());
-                    return String.format("(%s)", attrs.get(0));
+                    return attrs.get(0);
                 }
         );
     }
