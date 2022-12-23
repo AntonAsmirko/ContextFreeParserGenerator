@@ -3,7 +3,7 @@ grammar Expr;
 prog: stat+
     ;
 
-stat: ID '=' expr ';' #assign
+stat: ID '=' expr LINE_END #assign
     ;
 
 expr: expr op=(MUL|DIV) expr #MullDiv
@@ -21,3 +21,4 @@ MUL : '*' ;
 DIV : '/' ;
 ADD : '+' ;
 SUB : '-' ;
+LINE_END : ';' ;

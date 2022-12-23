@@ -2,6 +2,7 @@ package ru.anton.asmirko.antlrcalculator;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import ru.anton.asmirko.antlrcalculator.parser.ExprParserWithErrors;
 import ru.anton.asmirko.graphviz.TreeDrawer;
 import ru.anton.asmirko.tree.TreeWithAttributes;
 
@@ -17,7 +18,7 @@ public class Main {
             var inputStream = CharStreams.fromFileName(inputFile);
             var lexer = new ExprLexer(inputStream);
             var tokens = new CommonTokenStream(lexer);
-            var parser = new ExprParser(tokens);
+            var parser = new ExprParserWithErrors(tokens);
             var tree = parser.prog();
             var exprTreeVisitor = new ExprToTreeVisitor();
             var treeInternal = exprTreeVisitor.visit(tree);

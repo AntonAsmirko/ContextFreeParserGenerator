@@ -1,12 +1,15 @@
 import com.google.common.truth.Truth;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.anton.asmirko.antlrcalculator.ExprLexer;
-import ru.anton.asmirko.antlrcalculator.ExprParser;
 import ru.anton.asmirko.antlrcalculator.ExprToTreeVisitor;
+import ru.anton.asmirko.antlrcalculator.error.CalcParserException;
+import ru.anton.asmirko.antlrcalculator.parser.ExprParserWithErrors;
 import ru.anton.asmirko.tree.TreeWithAttributes;
 
 import java.io.IOException;
@@ -37,7 +40,12 @@ public class AntlrCalculatorTest {
     })
     @ParameterizedTest
     public void testNegativeCases(String inputFile) throws IOException {
-        testInternal(inputFile);
+        try {
+            testInternal(inputFile);
+            Assertions.fail();
+        } catch (CalcParserException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private URL resourceURLLoader(String file) {
@@ -50,11 +58,10 @@ public class AntlrCalculatorTest {
         var inputStream = CharStreams.fromStream(uri.openStream());
         var lexer = new ExprLexer(inputStream);
         var tokens = new CommonTokenStream(lexer);
-        var parser = new ExprParser(tokens);
+        var parser = new ExprParserWithErrors(tokens);
         var tree = parser.prog();
         var exprTreeVisitor = new ExprToTreeVisitor();
         var treeInternal = exprTreeVisitor.visit(tree);
-        var result = ((TreeWithAttributes<String, String>) treeInternal).yield();
-        return result;
+        return ((TreeWithAttributes<String, String>) treeInternal).yield();
     }
 }

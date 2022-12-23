@@ -63,8 +63,3 @@ val compileJava: JavaCompile by tasks
 compileJava.source(tasks.generateGrammarSource)
 compileJava.dependsOn(tasks.generateGrammarSource)
 
-//val compileKotlin: KotlinCompile by tasks
-//compileKotlin.kotlinOptions {
-//    jvmTarget = "11"
-//}
-
