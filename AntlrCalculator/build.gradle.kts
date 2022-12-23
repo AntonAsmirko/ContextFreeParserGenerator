@@ -35,6 +35,12 @@ dependencies {
     implementation(project(":Grammar"))
     implementation(project(":GraphViz"))
     implementation(kotlin("stdlib-jdk8"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    testImplementation("com.google.truth:truth:1.1.3")
+    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
+
 }
 
 tasks.generateGrammarSource {
