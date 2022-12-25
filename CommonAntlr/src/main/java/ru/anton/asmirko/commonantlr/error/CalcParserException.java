@@ -1,4 +1,4 @@
-package ru.anton.asmirko.antlrcalculator.error;
+package ru.anton.asmirko.commonantlr.error;
 
 public class CalcParserException extends IllegalStateException {
 

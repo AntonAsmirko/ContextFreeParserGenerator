@@ -6,13 +6,13 @@ import ru.anton.asmirko.grammar.TerminalToken
 import ru.anton.asmirko.grammar.Token
 import ru.anton.asmirko.lexer.exception.LexerException
 
-abstract class AbstractLexer<T>(private val grammar: Grammar<T>, override val eof: T) : Lexer<T> {
+abstract class AbstractLexer(private val grammar: Grammar, override val eof: String) : Lexer {
     private var curPos = -1
-    private var curT: T? = null
-    private var curToken: Token<T>? = null
-    private var str: List<T>? = null
+    private var curT: String? = null
+    private var curToken: Token? = null
+    private var str: List<String>? = null
 
-    abstract fun isBlank(t: T): Boolean
+    abstract fun isBlank(t: String): Boolean
 
     private fun nextT() {
         curPos++
@@ -30,12 +30,12 @@ abstract class AbstractLexer<T>(private val grammar: Grammar<T>, override val eo
         curToken = getToken(curT!!)
     }
 
-    override fun curToken(): Token<T> {
+    override fun curToken(): Token {
         return curToken!!
     }
 
-    override fun init(str: List<T>) {
-        this.str = mutableListOf<T>().apply {
+    override fun init(str: List<String>) {
+        this.str = mutableListOf<String>().apply {
             addAll(str)
             add(eof)
         }
@@ -47,14 +47,14 @@ abstract class AbstractLexer<T>(private val grammar: Grammar<T>, override val eo
         return curPos
     }
 
-    private fun getToken(chunk: T): Token<T> {
-        return if (grammar.latticeSubstitute.values.any { chunk in it }
+    private fun getToken(chunk: String): Token {
+        return if (grammar.latticeSubstitute.any { it.matches(chunk) }
             || chunk == eof || chunk in grammar.otherLattice) {
             TerminalToken(chunk)
         } else if (chunk == grammar.epsilonToken.value) {
             grammar.epsilonToken
-        } else if (chunk == grammar.bucksToken.value) {
-            grammar.bucksToken
+        } else if (chunk == "$") {
+            TerminalToken("$")
         } else {
             NonTerminalToken(chunk)
         }

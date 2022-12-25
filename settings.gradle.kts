@@ -17,5 +17,7 @@ include(
     "Lexer",
     "Tree",
     "GraphViz",
-    "AntlrCalculator"
+    "AntlrCalculator",
+    "CommonAntlr",
+    "AntlrMetaGrammar"
 )

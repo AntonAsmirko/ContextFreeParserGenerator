@@ -2,53 +2,51 @@ package ru.anton.asmirko.parser
 
 import ru.anton.asmirko.grammar.*
 import ru.anton.asmirko.graphviz.TreeDrawer
-import ru.anton.asmirko.parser.lexer.ArithmeticsLexer
 import ru.anton.asmirko.parser.lexer.RegexLexer
-import ru.anton.asmirko.parser.parser.ArithmeticExprParser
 import ru.anton.asmirko.parser.parser.RegexParser
 
 fun main() {
     runRegexParser()
 }
 
-fun runArithmeticsParser() {
-    val grammar = """
-       E -> TX
-       X -> +TX
-       X -> ε
-       T -> FY
-       Y -> *FY
-       Y -> ε
-       F -> a
-       F -> (E)
-    """.trimIndent()
-    val grammarResolver = GrammarResolver()
-    val resolvedGrammar = grammarResolver.resolveGrammar(
-        grammar, nonTerminals = listOf('E', 'X', 'T', 'Y', 'F'),
-        otherLattice = setOf('*', '+', '(', ')'),
-        epsilon = 'ε',
-        bucks = '$',
-        latticeSubstitute = mapOf(
-            TerminalToken('a') to ('0' .. '9').toSet()
-        )
-    )
-    val lexer = ArithmeticsLexer(resolvedGrammar)
-    val parser = ArithmeticExprParser(resolvedGrammar, lexer)
-    val toPlot = listOf(
-        "1 + 3 * ( 2 +    1 )",
-        "1",
-        "(1)",
-        "( (    ((1)) ) )",
-        "1 * (2 + 3)",
-        "1 + 2 + 3 + 4 + 5",
-        "(1 + 2 + 4) * 4"
-    )
-    for (item in toPlot) {
-        val result = parser.parse(item.toList())
-        val treeDrawer = TreeDrawer()
-        treeDrawer.drawTree(result, item, "graphs/arithmetics")
-    }
-}
+//fun runArithmeticsParser() {
+//    val grammar = """
+//       E -> TX
+//       X -> +TX
+//       X -> ε
+//       T -> FY
+//       Y -> *FY
+//       Y -> ε
+//       F -> a
+//       F -> (E)
+//    """.trimIndent()
+//    val grammarResolver = GrammarResolver()
+//    val resolvedGrammar = grammarResolver.resolveGrammar(
+//        grammar, nonTerminals = listOf("E", "X", "T", "Y", "F"),
+//        otherLattice = setOf('*', '+', '(', ')'),
+//        epsilon = "ε",
+//        bucks = '$',
+//        latticeSubstitute = mapOf(
+//            TerminalToken("a") to ('0' .. '9').toSet()
+//        )
+//    )
+//    val lexer = ArithmeticsLexer(resolvedGrammar)
+//    val parser = ArithmeticExprParser(resolvedGrammar, lexer)
+//    val toPlot = listOf(
+//        "1 + 3 * ( 2 +    1 )",
+//        "1",
+//        "(1)",
+//        "( (    ((1)) ) )",
+//        "1 * (2 + 3)",
+//        "1 + 2 + 3 + 4 + 5",
+//        "(1 + 2 + 4) * 4"
+//    )
+//    for (item in toPlot) {
+//        val result = parser.parse(item.toList())
+//        val treeDrawer = TreeDrawer()
+//        treeDrawer.drawTree(result, item, "graphs/arithmetics")
+//    }
+//}
 
 /**
  *  S -> Or
@@ -141,11 +139,8 @@ fun runRegexParser() {
         ),
         otherLattice = setOf("|", "*"),
         epsilonToken = EpsilonToken("ε"),
-        bucksToken = BucksToken("$"),
         startNonTerminal = NonTerminalToken("S"),
-        latticeSubstitute = mapOf(
-            TerminalToken("char") to ('a' .. 'z').map { it.toString() }.toSet()
-        )
+        latticeSubstitute = setOf(Regex("[a-z]"))
     )
     val lexer = RegexLexer(grammar)
     val parser = RegexParser(grammar, lexer)
@@ -160,8 +155,8 @@ fun runRegexParser() {
         "(a)"
     )
     for (item in toPlot) {
-            val result = parser.parse(item.toList().map { it.toString() })
-            val treeDrawer = TreeDrawer()
-            treeDrawer.drawTree(result, item, "graphs/regex")
+        val result = parser.parse(item.toList().map { it.toString() })
+        val treeDrawer = TreeDrawer()
+        treeDrawer.drawTree(result, item, "graphs/regex")
     }
 }

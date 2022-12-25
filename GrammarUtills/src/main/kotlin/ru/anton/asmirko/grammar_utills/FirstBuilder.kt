@@ -4,11 +4,11 @@ import ru.anton.asmirko.grammar.Grammar
 import ru.anton.asmirko.grammar.TerminalToken
 import ru.anton.asmirko.grammar.Token
 
-class FirstBuilder<T>(private val grammar: Grammar<T>) {
+class FirstBuilder(private val grammar: Grammar) {
 
-    private val firstSets = mutableMapOf<Token<T>, MutableSet<Token<T>>>()
+    private val firstSets = mutableMapOf<Token, MutableSet<Token>>()
 
-    fun buildFirstSets(): First<T> {
+    fun buildFirstSets(): First {
         for (rule in grammar.rules) {
             firstOf(rule.nonTerminal)
         }
@@ -18,19 +18,19 @@ class FirstBuilder<T>(private val grammar: Grammar<T>) {
         return firstSets
     }
 
-    private fun firstOf(token: Token<T>): MutableSet<Token<T>> {
+    private fun firstOf(token: Token): MutableSet<Token> {
         if (firstSets.containsKey(token)) {
             return firstSets[token]!!
         }
         return when (token) {
             is TerminalToken -> {
-                val first: MutableSet<Token<T>> = mutableSetOf(token)
+                val first: MutableSet<Token> = mutableSetOf(token)
                 firstSets[token] = first
                 first
             }
             else -> {
                 val first = grammar.rules.filter { it.nonTerminal == token }
-                    .map {
+                    .map { it ->
                         val f0 = firstOf(it.rightSide[0]).map { it }.toMutableSet()
                         var i = 1
                         while (f0.contains(grammar.epsilonToken) && i < it.rightSide.size) {
@@ -49,4 +49,4 @@ class FirstBuilder<T>(private val grammar: Grammar<T>) {
     }
 }
 
-typealias First<T> = Map<Token<T>, MutableSet<Token<T>>>
+typealias First = Map<Token, MutableSet<Token>>

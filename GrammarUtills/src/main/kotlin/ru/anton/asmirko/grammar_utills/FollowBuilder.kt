@@ -5,27 +5,27 @@ import ru.anton.asmirko.grammar.NonTerminalToken
 import ru.anton.asmirko.grammar.TerminalToken
 import ru.anton.asmirko.grammar.Token
 
-class FollowBuilder<T>(private val grammar: Grammar<T>) {
+class FollowBuilder(private val grammar: Grammar) {
 
     private val firstBuilder = FirstBuilder(grammar)
     private val firstSets = firstBuilder.buildFirstSets()
-    private val followSets: MutableMap<Token<T>, MutableSet<Token<T>>> = mutableMapOf()
+    private val followSets: MutableMap<Token, MutableSet<Token>> = mutableMapOf()
 
-    fun buildFollowSets(): Follow<T> {
+    fun buildFollowSets(): Follow {
         for ((nonTerm, rule) in grammar.rules) {
             followOf(nonTerm)
         }
         return followSets
     }
 
-    private fun followOf(nonTermToken: NonTerminalToken<T>): MutableSet<Token<T>> {
+    private fun followOf(nonTermToken: NonTerminalToken): MutableSet<Token> {
         if (followSets.containsKey(nonTermToken)) {
             return followSets[nonTermToken]!!
         }
-        val follow = mutableSetOf<Token<T>>()
+        val follow = mutableSetOf<Token>()
         followSets[nonTermToken] = follow
         if (nonTermToken == grammar.rules[0].nonTerminal) {
-            follow.add(grammar.bucksToken)
+            follow.add(TerminalToken("$"))
         }
         val productionsWithSymbol = getProductionsWithSymbol(nonTermToken)
         for ((nonTerm, rules) in productionsWithSymbol) {
@@ -59,9 +59,9 @@ class FollowBuilder<T>(private val grammar: Grammar<T>) {
     }
 
     private fun getProductionsWithSymbol(
-        nonTermToken: NonTerminalToken<T>
-    ): MutableMap<NonTerminalToken<T>, MutableList<List<Token<T>>>> {
-        val productionsWithSymbol = mutableMapOf<NonTerminalToken<T>, MutableList<List<Token<T>>>>()
+        nonTermToken: NonTerminalToken
+    ): MutableMap<NonTerminalToken, MutableList<List<Token>>> {
+        val productionsWithSymbol = mutableMapOf<NonTerminalToken, MutableList<List<Token>>>()
         for ((nonTerm, rule) in grammar.rules) {
             if (rule.contains(nonTermToken)) {
                 if (!productionsWithSymbol.containsKey(nonTerm)) {
@@ -75,4 +75,4 @@ class FollowBuilder<T>(private val grammar: Grammar<T>) {
     }
 }
 
-typealias Follow<T> = Map<Token<T>, MutableSet<Token<T>>>
+typealias Follow = Map<Token, MutableSet<Token>>

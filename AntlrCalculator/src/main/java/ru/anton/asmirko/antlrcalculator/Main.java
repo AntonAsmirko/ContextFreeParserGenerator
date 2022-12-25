@@ -24,7 +24,7 @@ public class Main {
             var treeInternal = exprTreeVisitor.visit(tree);
             var treeDrawer = new TreeDrawer();
             treeDrawer.drawTree(treeInternal, "first-test", "graphs/antlr-calc");
-            System.out.println(((TreeWithAttributes<String, String>) treeInternal).yield());
+            System.out.println(((TreeWithAttributes<String>) treeInternal).yield());
         } catch (Exception e) {
             e.printStackTrace();
         }

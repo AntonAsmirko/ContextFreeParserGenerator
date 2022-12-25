@@ -79,11 +79,9 @@ fun main() {
         ),
         otherLattice = setOf("|", "*", "(", ")", "?", "+", "^"),
         epsilonToken = EpsilonToken("ε"),
-        bucksToken = BucksToken("$"),
         startNonTerminal = NonTerminalToken("S"),
-        latticeSubstitute = mapOf(
-            TerminalToken("char") to ('a'..'z').map { it.toString() }.toSet(),
-            TerminalToken("!") to setOf("?", "*", "+")
+        latticeSubstitute = setOf(
+            Regex("[a-z]"), Regex("[?*+]")
         )
     )
 

@@ -7,15 +7,15 @@ import ru.anton.asmirko.lexer.Lexer
 import ru.anton.asmirko.tree.Tree
 import ru.anton.asmirko.tree.TreeImpl
 
-abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val lexer: Lexer<T>) : Parser<T> {
+abstract class AbstractParser(private val grammar: Grammar, private val lexer: Lexer) : Parser {
 
     private val firstSets = FirstBuilder(grammar).buildFirstSets()
     private val followSets = FollowBuilder(grammar).buildFollowSets()
-    private val mapWithRules: Map<NonTerminalToken<T>, () -> Tree<T>> = grammar.rules.map { it.nonTerminal }
+    private val mapWithRules: Map<NonTerminalToken, () -> Tree> = grammar.rules.map { it.nonTerminal }
         .distinct()
         .associateWith { makeRuleLambda(it) }
 
-    override fun parse(str: List<T>): Tree<T> {
+    override fun parse(str: List<String>): Tree {
         lexer.init(str)
         val result = mapWithRules[grammar.startNonTerminal]!!()
         if (lexer.curToken().value != lexer.eof) {
@@ -24,7 +24,7 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
         return result
     }
 
-    private fun makeRuleLambda(nonTerm: Token<T>): () -> Tree<T> {
+    private fun makeRuleLambda(nonTerm: Token): () -> Tree {
         return {
             val rulesWithNonTerm = grammar.rules.filter { it.nonTerminal == nonTerm }
             val r = TreeImpl(value = nonTerm)
@@ -38,19 +38,15 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
                                 rule.rightSide[index] == grammar.epsilonToken -> {
                                     r.children.add(TreeImpl(value = grammar.epsilonToken))
                                 }
-                                grammar.latticeSubstitute.map { Pair(it.key, it.value) }
-                                    .firstOrNull { it.first == rule.rightSide[index] }
-                                    ?.second
-                                    ?.contains(lexer.curToken().value)
+                                grammar.latticeSubstitute.firstOrNull { TerminalToken(it.pattern) == rule.rightSide[index] }
+                                    ?.matches(lexer.curToken().value)
                                     ?.not()
                                     ?: false -> {
                                     throw UnmatchedSymbolException(
-                                        msg = """Token at position ${lexer.curPos()} \"${lexer.curToken()}\" does not match symbol at grammar \"${rule.rightSide[index]}\
-                                            which is lattice substitute an can have only this values [${grammar.latticeSubstitute[lexer.curToken()]!!.joinToString()}]
-                                        """.trimMargin()
+                                        msg = "Token at position ${lexer.curPos()} \"${lexer.curToken()}\" does not match symbol at grammar \"${rule.rightSide[index]}\""
                                     )
                                 }
-                                grammar.latticeSubstitute.keys.none { it == rule.rightSide[index] }
+                                grammar.latticeSubstitute.none { TerminalToken("/${it.pattern}/") == rule.rightSide[index] }
                                         && lexer.curToken() != rule.rightSide[index] -> {
                                     throw UnmatchedSymbolException(
                                         msg = "Token at position ${lexer.curPos()} \"${lexer.curToken()}\" does not match symbol at grammar \"${rule.rightSide[index]}\""
@@ -74,7 +70,7 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
         }
     }
 
-    private fun firstOne(rule: Rule<T>, ch: Token<T>): Boolean {
+    private fun firstOne(rule: Rule, ch: Token): Boolean {
         val firstCh = firstSets[rule.rightSide[0]]
             ?.map { it }
             ?.toMutableSet()
@@ -84,14 +80,16 @@ abstract class AbstractParser<T>(private val grammar: Grammar<T>, private val le
             val followNonTerm = followSets[rule.nonTerminal]!!
             firstCh.addAll(followNonTerm)
         }
-        val (tokenSub, options) = grammar.latticeSubstitute.filter { ch.value in it.value }
-            .map { Pair(it.key, it.value) }
-            .firstOrNull()
-            ?: Pair(grammar.bucksToken, setOf())
-        return if (ch.value in options) {
-            firstCh.contains(tokenSub)
+        val options = grammar.latticeSubstitute.firstOrNull { it.matches(ch.value) }
+            ?: REGEX_ALWAYS_FALSE
+        return if (options.matches(ch.value)) {
+            firstCh.contains(TerminalToken("/${options.pattern}/"))
         } else {
             firstCh.contains(ch)
         }
+    }
+
+    companion object {
+        val REGEX_ALWAYS_FALSE = Regex("$.^")
     }
 }

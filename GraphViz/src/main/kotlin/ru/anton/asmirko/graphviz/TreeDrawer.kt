@@ -13,13 +13,13 @@ class TreeDrawer {
 
     private var nodeCounter = 0
 
-    fun drawTree(tree: Tree<*>, name: String, outDir: String = "graphs") {
+    fun drawTree(tree: Tree, name: String, outDir: String = "graphs") {
         nodeCounter = 0
         val graph = mutGraph(outDir).add(reformatTree(tree))
         Graphviz.fromGraph(graph).width(500).height(500).render(Format.PNG).toFile(File("$outDir/$name"))
     }
 
-    private fun reformatTree(tree: Tree<*>): MutableNode {
+    private fun reformatTree(tree: Tree): MutableNode {
         val node = mutNode("${tree.value}_$nodeCounter").add(Label.lines(tree.value.toString()))
         nodeCounter++
         for (child in tree.children) {

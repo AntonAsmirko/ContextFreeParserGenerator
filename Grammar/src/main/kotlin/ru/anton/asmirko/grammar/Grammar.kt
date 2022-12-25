@@ -1,39 +1,37 @@
 package ru.anton.asmirko.grammar
 
-data class Grammar<T>(
-    val rules: List<Rule<T>>,
-    val nonTerminals: Set<NonTerminalToken<T>>,
-    val otherLattice: Set<T>,
-    val epsilonToken: EpsilonToken<T>,
-    val bucksToken: BucksToken<T>,
-    val startNonTerminal: NonTerminalToken<T>,
-    val latticeSubstitute: Map<TerminalToken<T>, Set<T>>
+data class Grammar(
+    val rules: List<Rule>,
+    val nonTerminals: Set<NonTerminalToken>,
+    val otherLattice: Set<String>,
+    val epsilonToken: EpsilonToken = EpsilonToken("ε"),
+    val startNonTerminal: NonTerminalToken,
+    val latticeSubstitute: Set<Regex>
 )
 
-data class Rule<T>(val nonTerminal: NonTerminalToken<T>, val rightSide: List<Token<T>>)
+data class Rule(val nonTerminal: NonTerminalToken, val rightSide: List<Token>)
 
-sealed class Token<T>(open val value: T) {
+sealed class Token(open val value: String) {
     override fun equals(other: Any?): Boolean {
-        if (other is Token<*>) {
-            return value?.equals(other.value) ?: false
+        if (other is Token) {
+            return (value == other.value)
         }
         return false
     }
 
     override fun hashCode(): Int {
-        return value?.hashCode() ?: 0
+        return value.hashCode()
     }
 
     override fun toString(): String {
-        return value.toString()
+        return value
     }
 }
 
-class NonTerminalToken<T>(override val value: T) : Token<T>(value)
+class NonTerminalToken(override val value: String) : Token(value)
 
-open class TerminalToken<T>(override val value: T) : Token<T>(value)
+open class TerminalToken(override val value: String) : Token(value)
 
-class EpsilonToken<T>(override val value: T) : TerminalToken<T>(value)
+class EpsilonToken(override val value: String) : TerminalToken(value)
 
-class BucksToken<T>(override val value: T) : TerminalToken<T>(value)
 

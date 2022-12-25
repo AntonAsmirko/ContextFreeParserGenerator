@@ -2,7 +2,7 @@ package ru.anton.asmirko.tree
 
 import ru.anton.asmirko.grammar.Token
 
-interface Tree<T> {
-    val children: MutableList<Tree<T>>
-    val `value`: Token<T>
+interface Tree {
+    val children: MutableList<Tree>
+    val `value`: Token
 }

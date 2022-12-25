@@ -18,6 +18,6 @@ import ru.anton.asmirko.grammar.Grammar
  *  | 8 | Alternation                       | |                    |
  *  +---+-----------------------------------+----------------------+
  */
-class RegexParser(grammar: Grammar<String>, lexer: Lexer<String>) : AbstractParser<String>(grammar, lexer)
+class RegexParser(grammar: Grammar, lexer: Lexer) : AbstractParser(grammar, lexer)
 
-class ArithmeticExprParser(grammar: Grammar<Char>, lexer: Lexer<Char>) : AbstractParser<Char>(grammar, lexer)
+class ArithmeticExprParser(grammar: Grammar, lexer: Lexer) : AbstractParser(grammar, lexer)

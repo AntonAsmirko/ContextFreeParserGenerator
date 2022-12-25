@@ -1,4 +1,4 @@
-package ru.anton.asmirko.antlrcalculator.error;
+package ru.anton.asmirko.commonantlr.error;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Parser;
