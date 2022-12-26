@@ -1,0 +1,13 @@
+E : T X -{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (childrenD[0] + (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc + i} else 0.0)).toString()}- ;
+X : '+' T X -{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (childrenD[0] + (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc + i} else 0.0)).toString()}-
+  | '-' T X -{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (-1.0 * childrenD[0] + (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc + i} else 0.0)).toString()}-
+  | ε
+  ;
+T : F Y -{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (childrenD[0] * (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc * i} else 1.0)).toString()}- ;
+Y : '*' F Y -{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (childrenD[0] * (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc * i} else 1.0)).toString()}-
+  | '/' F Y -{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (1.0 / childrenD[0] * (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc * i} else 1.0)).toString()}-
+  | ε
+  ;
+F : /-?[1-9][0-9]*(\.[0-9]*)?/ -{ children: List<String>, value: String -> children[0] }-
+  | '(' E ')' -{ children: List<String>, value: String -> children[0].toString()}-
+  ;

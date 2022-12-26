@@ -1,29 +1,15 @@
 package ru.anton.asmirko.parser
 
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import ru.anton.asmirko.antlrmetagrammar.MetaGrammarLexer
-import ru.anton.asmirko.antlrmetagrammar.MetaGrammarParser
-import ru.anton.asmirko.antlrmetagrammar.utills.MetaGrammarUtils
 import ru.anton.asmirko.grammar.*
 import ru.anton.asmirko.graphviz.TreeDrawer
 import ru.anton.asmirko.lexer.TokenLexer
 import ru.anton.asmirko.parser.lexer.RegexLexer
 import ru.anton.asmirko.parser.parser.RegexParser
-import ru.anton.asmirko.tree.Tree
+import ru.anton.asmirko.parser.utils.initGrammarFromFile
 import ru.anton.asmirko.tree.TreeWithAttributes
 
 fun main(args: Array<String>) {
     runArithmeticLangParser(args[0])
-}
-
-fun initGrammarFromFile(grammarFile: String): Pair<Grammar, CommonTokenStream> {
-    val inputStream = CharStreams.fromFileName(grammarFile)
-    val lexer = MetaGrammarLexer(inputStream)
-    val tokens = CommonTokenStream(lexer)
-    val parser = MetaGrammarParser(tokens)
-    val tree = parser.rules()
-    return Pair(MetaGrammarUtils.treeToGrammar(tree, tokens), tokens)
 }
 
 fun runRegexParserFromGrammar(grammarFile: String) {

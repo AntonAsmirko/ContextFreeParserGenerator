@@ -22,6 +22,7 @@ version = "1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 dependencies {
+    implementation(project(":TestUtills"))
     implementation(project(":GrammarUtills"))
     implementation(project(":Core"))
     implementation(project(":Grammar"))

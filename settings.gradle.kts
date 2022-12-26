@@ -19,5 +19,6 @@ include(
     "GraphViz",
     "AntlrCalculator",
     "CommonAntlr",
-    "AntlrMetaGrammar"
+    "AntlrMetaGrammar",
+    ":TestUtills"
 )

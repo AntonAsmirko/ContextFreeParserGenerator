@@ -1,0 +1,4 @@
+package customgrammar
+
+class RegexTest {
+}
