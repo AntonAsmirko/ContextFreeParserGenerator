@@ -14,7 +14,6 @@ apply(plugin = "org.jetbrains.kotlin.jvm")
 
 plugins {
     id("java")
-//    kotlin("jvm") version "1.5.0-release-759"
 }
 
 

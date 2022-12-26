@@ -13,7 +13,7 @@ import ru.anton.asmirko.tree.Tree
 
 class RegexParserTest {
 
-    private val tokens = mutableListOf<Token<*>>()
+    private val tokens = mutableListOf<Token>()
     private val lexer = RegexLexer(grammar)
 
     @BeforeEach
@@ -76,7 +76,7 @@ class RegexParserTest {
         }
     }
 
-    private fun getTerminalTokens(tree: Tree<*>) {
+    private fun getTerminalTokens(tree: Tree) {
         if (tree.value is TerminalToken) {
             if (tree.value != grammar.epsilonToken) {
                 tokens.add(tree.value)
@@ -87,7 +87,7 @@ class RegexParserTest {
     }
 
     companion object {
-        val rules = mutableListOf(
+        private val rules = mutableListOf(
             Rule(
                 nonTerminal = NonTerminalToken("S"),
                 rightSide = listOf(NonTerminalToken("Or"))
@@ -141,7 +141,7 @@ class RegexParserTest {
             ),
             Rule(
                 nonTerminal = NonTerminalToken("C"),
-                rightSide = listOf(TerminalToken("char"))
+                rightSide = listOf(TerminalToken("/[a-z]/"))
             )
         )
         val grammar = Grammar(
@@ -158,11 +158,8 @@ class RegexParserTest {
             ),
             otherLattice = setOf("|", "*", "(", ")"),
             epsilonToken = EpsilonToken("ε"),
-            bucksToken = BucksToken("$"),
             startNonTerminal = NonTerminalToken("S"),
-            latticeSubstitute = mapOf(
-                TerminalToken("char") to ('a' .. 'z').map { it.toString() }.toSet()
-            )
+            latticeSubstitute = setOf(Regex("[a-z]"))
         )
     }
 }

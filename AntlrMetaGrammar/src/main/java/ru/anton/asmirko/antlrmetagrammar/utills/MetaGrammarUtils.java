@@ -8,6 +8,7 @@ import ru.anton.asmirko.antlrmetagrammar.MetaGrammarParser;
 import ru.anton.asmirko.grammar.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,14 @@ public class MetaGrammarUtils {
                 traverseNode(node.getChild(i), nonTerminals, result);
             }
         }
+    }
+
+    public static List<String> getTokens(CommonTokenStream cts) {
+        return cts.getTokens().stream()
+                .map(org.antlr.v4.runtime.Token::getText)
+                .filter(it -> quoted.matches(it) || regex.matches(it))
+                .map(it -> it.substring(1, it.length() - 1))
+                .collect(Collectors.toList());
     }
 
     public static Grammar treeToGrammar(MetaGrammarParser.RulesContext ctx, CommonTokenStream tokens) {

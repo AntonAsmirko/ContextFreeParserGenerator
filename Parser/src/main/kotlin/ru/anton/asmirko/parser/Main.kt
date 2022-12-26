@@ -7,25 +7,26 @@ import ru.anton.asmirko.antlrmetagrammar.MetaGrammarParser
 import ru.anton.asmirko.antlrmetagrammar.utills.MetaGrammarUtils
 import ru.anton.asmirko.grammar.*
 import ru.anton.asmirko.graphviz.TreeDrawer
+import ru.anton.asmirko.lexer.TokenLexer
 import ru.anton.asmirko.parser.lexer.RegexLexer
 import ru.anton.asmirko.parser.parser.RegexParser
 
 fun main(args: Array<String>) {
-    runRegexParserFromGrammar(args[0])
+    runArithmeticParserFromGrammar(args[0])
 }
 
-fun initGrammarFromFile(grammarFile: String): Grammar {
+fun initGrammarFromFile(grammarFile: String): Pair<Grammar, CommonTokenStream> {
     val inputStream = CharStreams.fromFileName(grammarFile)
     val lexer = MetaGrammarLexer(inputStream)
     val tokens = CommonTokenStream(lexer)
     val parser = MetaGrammarParser(tokens)
     val tree = parser.rules()
-    return MetaGrammarUtils.treeToGrammar(tree, tokens)
+    return Pair(MetaGrammarUtils.treeToGrammar(tree, tokens), tokens)
 }
 
 fun runRegexParserFromGrammar(grammarFile: String) {
-    val grammar = initGrammarFromFile(grammarFile)
-    val lexer1 = RegexLexer(grammar)
+    val (grammar, tokens) = initGrammarFromFile(grammarFile)
+    val lexer1 = TokenLexer(tokens, "$")
     val parser1 = RegexParser(grammar, lexer1)
     val toPlot = listOf(
         "ab|cd",
@@ -38,15 +39,15 @@ fun runRegexParserFromGrammar(grammarFile: String) {
         "(a)"
     )
     for (item in toPlot) {
-        val result = parser1.parse(item.toList().map { it.toString() })
+        val result = parser1.parse(listOf(item))
         val treeDrawer = TreeDrawer()
         treeDrawer.drawTree(result, item, "graphs/regex")
     }
 }
 
 fun runArithmeticParserFromGrammar(grammarFile: String) {
-    val grammar = initGrammarFromFile(grammarFile)
-    val lexer1 = RegexLexer(grammar)
+    val (grammar, tokens) = initGrammarFromFile(grammarFile)
+    val lexer1 = TokenLexer(tokens, "$")
     val parser1 = RegexParser(grammar, lexer1)
     val toPlot = listOf(
         "1 + 3 * ( 2 +    1 )",
@@ -55,10 +56,12 @@ fun runArithmeticParserFromGrammar(grammarFile: String) {
         "( (    ((1)) ) )",
         "1 * (2 + 3)",
         "1 + 2 + 3 + 4 + 5",
-        "(1 + 2 + 4) * 4"
+        "(1 + 2 + 4) * 4",
+        "124 + 3000 * 10"
     )
     for (item in toPlot) {
-        val result = parser1.parse(item.split("".toRegex()))
+        val result = parser1.parse(listOf(item))
+
         val treeDrawer = TreeDrawer()
         treeDrawer.drawTree(result, item, "graphs/arithmetics")
     }
