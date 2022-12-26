@@ -23,6 +23,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 dependencies {
     implementation(project(":Grammar"))
+    implementation(project(":Lexer"))
     implementation(project(":Tree"))
     implementation(kotlin("stdlib-jdk8"))
 }

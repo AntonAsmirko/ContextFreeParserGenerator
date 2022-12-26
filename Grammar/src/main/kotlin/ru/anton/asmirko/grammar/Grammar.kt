@@ -26,11 +26,17 @@ sealed class Token(open var value: String) {
     override fun toString(): String {
         return value
     }
+
+    abstract fun clone(): Token
 }
 
-class NonTerminalToken(override var value: String) : Token(value)
+class NonTerminalToken(override var value: String) : Token(value) {
+    override fun clone(): Token = NonTerminalToken(this.value)
+}
 
-open class TerminalToken(override var value: String) : Token(value)
+open class TerminalToken(override var value: String) : Token(value) {
+    override fun clone(): Token = TerminalToken(this.value)
+}
 
 class EpsilonToken(override var value: String) : TerminalToken(value)
 

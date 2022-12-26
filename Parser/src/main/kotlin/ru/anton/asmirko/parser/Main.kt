@@ -9,7 +9,7 @@ import ru.anton.asmirko.parser.utils.initGrammarFromFile
 import ru.anton.asmirko.tree.TreeWithAttributes
 
 fun main(args: Array<String>) {
-    runArithmeticLangParser(args[0])
+    runArithmeticParserFromGrammar(args[0])
 }
 
 fun runRegexParserFromGrammar(grammarFile: String) {

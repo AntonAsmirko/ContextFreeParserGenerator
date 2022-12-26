@@ -103,8 +103,4 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
         val REGEX_ALWAYS_FALSE = Regex("$.^")
         val COMPILER = getCompiler()
     }
-
-    fun NonTerminalToken.clone(): NonTerminalToken = NonTerminalToken(this.value)
-    private fun TerminalToken.clone(): TerminalToken = TerminalToken(this.value)
-    fun Token.clone(): TerminalToken = TerminalToken(this.value)
 }
