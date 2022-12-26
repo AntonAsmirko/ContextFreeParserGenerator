@@ -31,10 +31,6 @@ dependencies {
     runtimeOnly("org.antlr:antlr4-runtime:4.11.1")
     implementation(project(":Tree"))
     implementation(project(":Grammar"))
-    implementation(project(":GraphViz"))
-    implementation(project(":Parser"))
-    implementation(project(":Core"))
-    implementation(project(":Lexer"))
     implementation(project(":CommonAntlr"))
     implementation(kotlin("stdlib-jdk8"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
@@ -49,11 +45,27 @@ tasks.generateGrammarSource {
     maxHeapSize = "64m"
     arguments = arguments + listOf(
         "-package",
-        "ru.anton.asmirko.antlrcalculator",
+        "ru.anton.asmirko.antlrmetagrammar",
         "-visitor",
         "-no-listener",
         "-long-messages"
     )
+}
+
+dependencies {
+    antlr("org.antlr:antlr4:4.11.1")
+    runtimeOnly("org.antlr:antlr4-runtime:4.11.1")
+    implementation(project(":Tree"))
+    implementation(project(":Grammar"))
+    implementation(project(":GraphViz"))
+    implementation(project(":CommonAntlr"))
+    implementation(kotlin("stdlib-jdk8"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    testImplementation("com.google.truth:truth:1.1.3")
+    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.2")
+
 }
 
 tasks.withType<Test> {

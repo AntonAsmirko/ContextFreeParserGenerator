@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":Lexer"))
     implementation(project(":Tree"))
     implementation(project(":GraphViz"))
+    implementation(project(":AntlrMetaGrammar"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.2")
     testImplementation("com.google.truth:truth:1.1.3")
