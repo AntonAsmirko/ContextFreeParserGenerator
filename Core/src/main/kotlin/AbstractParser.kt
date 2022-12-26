@@ -14,13 +14,10 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
 
     private val firstSets = FirstBuilder(grammar).buildFirstSets()
     private val followSets = FollowBuilder(grammar).buildFollowSets()
-    private val mapWithRules: Map<NonTerminalToken, () -> Tree> = grammar.rules.map { it.nonTerminal }
-        .distinct()
-        .associateWith { makeRuleLambda(it) }
 
     override fun parse(str: List<String>): Tree {
         lexer.init(str)
-        val result = mapWithRules[grammar.startNonTerminal]!!()
+        val result = makeRuleLambda(grammar.startNonTerminal)()
         if (lexer.curToken().value != lexer.eof) {
             throw EOFException("EOF was not reached, last position: ${lexer.curPos()}")
         }
@@ -30,10 +27,10 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
     private fun makeRuleLambda(nonTerm: Token): () -> Tree {
         return {
             val rulesWithNonTerm = grammar.rules.filter { it.nonTerminal == nonTerm }
-            var r = TreeImpl(value = nonTerm)
+            var r = TreeImpl(value = nonTerm.clone())
             for (rule in rulesWithNonTerm) {
                 var wasEnter = false
-                if (firstOne(rule, lexer.curToken())) {
+                if (firstOne(rule, lexer.curToken().clone())) {
                     for (index in rule.rightSide.indices) {
                         wasEnter = true
                         rule.action?.let {
@@ -44,7 +41,7 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
                         if (rule.rightSide[index] is TerminalToken) {
                             when {
                                 rule.rightSide[index] == grammar.epsilonToken -> {
-                                    r.children.add(TreeImpl(value = grammar.epsilonToken))
+                                    r.children.add(TreeImpl(value = grammar.epsilonToken.clone()))
                                 }
                                 grammar.latticeSubstitute.firstOrNull { TerminalToken(it.pattern) == rule.rightSide[index] }
                                     ?.matches(lexer.curToken().value)
@@ -55,22 +52,22 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
                                     )
                                 }
                                 grammar.latticeSubstitute.none { TerminalToken("/${it.pattern}/") == rule.rightSide[index] }
-                                        && lexer.curToken() != rule.rightSide[index] -> {
+                                        && lexer.curToken() != rule.rightSide[index]  -> {
                                     throw UnmatchedSymbolException(
                                         msg = "Token at position ${lexer.curPos()} \"${lexer.curToken()}\" does not match symbol at grammar \"${rule.rightSide[index]}\""
                                     )
                                 }
                                 else -> {
-                                    if(grammar.latticeSubstitute.any { it.matches(lexer.curToken().value) }){
-                                        r.children.add(TreeWithAttributesImpl(value = lexer.curToken()))
+                                    if (grammar.latticeSubstitute.any { it.matches(lexer.curToken().value) }) {
+                                        r.children.add(TreeWithAttributesImpl(value = lexer.curToken().clone()))
                                     } else {
-                                        r.children.add(TreeImpl(value = lexer.curToken()))
+                                        r.children.add(TreeImpl(value = lexer.curToken().clone()))
                                     }
                                     lexer.nextToken()
                                 }
                             }
                         } else {
-                            r.children.add(mapWithRules[rule.rightSide[index]]!!())
+                            r.children.add(makeRuleLambda(rule.rightSide[index].clone())())
                         }
                     }
                 }
@@ -105,4 +102,8 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
         val REGEX_ALWAYS_FALSE = Regex("$.^")
         val COMPILER = getCompiler()
     }
+
+    fun NonTerminalToken.clone(): NonTerminalToken = NonTerminalToken(this.value)
+    private fun TerminalToken.clone(): TerminalToken = TerminalToken(this.value)
+    fun Token.clone(): TerminalToken = TerminalToken(this.value)
 }

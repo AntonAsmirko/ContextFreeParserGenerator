@@ -19,5 +19,3 @@ import ru.anton.asmirko.grammar.Grammar
  *  +---+-----------------------------------+----------------------+
  */
 class RegexParser(grammar: Grammar, lexer: Lexer) : AbstractParser(grammar, lexer)
-
-class ArithmeticExprParser(grammar: Grammar, lexer: Lexer) : AbstractParser(grammar, lexer)

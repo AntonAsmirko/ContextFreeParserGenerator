@@ -10,9 +10,11 @@ import ru.anton.asmirko.graphviz.TreeDrawer
 import ru.anton.asmirko.lexer.TokenLexer
 import ru.anton.asmirko.parser.lexer.RegexLexer
 import ru.anton.asmirko.parser.parser.RegexParser
+import ru.anton.asmirko.tree.Tree
+import ru.anton.asmirko.tree.TreeWithAttributes
 
 fun main(args: Array<String>) {
-    runArithmeticParserFromGrammar(args[0])
+    runRegexParserFromGrammar(args[0])
 }
 
 fun initGrammarFromFile(grammarFile: String): Pair<Grammar, CommonTokenStream> {
@@ -45,6 +47,21 @@ fun runRegexParserFromGrammar(grammarFile: String) {
     }
 }
 
+fun runArithmeticLangParser(grammarFile: String){
+    val (grammar, tokens) = initGrammarFromFile(grammarFile)
+    val lexer1 = TokenLexer(tokens, "$")
+    val parser1 = RegexParser(grammar, lexer1)
+    val toPlot = listOf(
+        "a = 10\nb = 15\nc = 10 + 15",
+    )
+    for (item in toPlot) {
+        val result = parser1.parse(listOf(item))
+        val res = (result as TreeWithAttributes).yield()
+        val treeDrawer = TreeDrawer()
+        treeDrawer.drawTree(result, item, "graphs/arithmetics")
+    }
+}
+
 fun runArithmeticParserFromGrammar(grammarFile: String) {
     val (grammar, tokens) = initGrammarFromFile(grammarFile)
     val lexer1 = TokenLexer(tokens, "$")
@@ -57,11 +74,12 @@ fun runArithmeticParserFromGrammar(grammarFile: String) {
         "1 * (2 + 3)",
         "1 + 2 + 3 + 4 + 5",
         "(1 + 2 + 4) * 4",
-        "124 + 3000 * 10"
+        "124 + 3000 * 10",
+        "1 / 1 - 1 * (-10 + 10) + 10"
     )
     for (item in toPlot) {
         val result = parser1.parse(listOf(item))
-
+        val res = (result as TreeWithAttributes).yield()
         val treeDrawer = TreeDrawer()
         treeDrawer.drawTree(result, item, "graphs/arithmetics")
     }

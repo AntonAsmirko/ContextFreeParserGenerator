@@ -14,6 +14,8 @@ class TokenLexer(cts: CommonTokenStream, override val eof: String) : Lexer {
     private lateinit var chunks: List<String>
     private val regexes = Regex(
         MetaGrammarUtils.getTokens(cts)
+            .sortedBy { it.length }
+            .reversed()
             .joinToString(separator = "|") { escaped(it) } + "|${escaped(eof)}"
     )
 
@@ -53,7 +55,7 @@ class TokenLexer(cts: CommonTokenStream, override val eof: String) : Lexer {
 
     companion object {
         private val SPECIAL_CHARACTERS = setOf(
-            ".", "^", "$", "*", "+", "-", "?", "(", ")",
+            ".", "^", "$", "*", "+", "?", "(", ")",
             "[", "]", "{", "}", "\\", "|", "—", "/",
         )
         private val WHITESPACE = Regex("\\S+")
