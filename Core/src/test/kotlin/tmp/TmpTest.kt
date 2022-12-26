@@ -9,9 +9,10 @@ class TmpTest {
     @Test
     fun testLib() {
         val compiler = getCompiler()
-        val fn: (List<String>, String) -> String = {children: List<String>, value: String -> children.joinToString(separator="\n")}
+        compiler.runScript<Any?>("val x = mutableMapOf<String, String>()")
+        compiler.runScript<Any?>("x[\"u\"] = \"aaaaaaaaaaaaaaaaaa\"")
         val res = compiler.runScript<(List<String>, String) -> String>(
-            """{ children: List<String>, value: String -> val childrenD = children.map{ it.toDouble() }; (childrenD[0] + childrenD.subList(1, (if(childrenD.subList(1, childrenD.size).isNotEmpty()) childrenD.subList(1, childrenD.size).reduce{acc, i -> acc + i} else 0.0)).toString()}
+            """{ children: List<String>, value: String -> x["u"]}
             """.trimMargin()
         )
         print(res(listOf("1", "2", "3"), "6"))

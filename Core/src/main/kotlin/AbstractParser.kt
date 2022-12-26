@@ -17,6 +17,7 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
 
     override fun parse(str: List<String>): Tree {
         lexer.init(str)
+        COMPILER.eval("val state = mutableMapOf<String, String>()")
         val result = makeRuleLambda(grammar.startNonTerminal)()
         if (lexer.curToken().value != lexer.eof) {
             throw EOFException("EOF was not reached, last position: ${lexer.curPos()}")

@@ -11,7 +11,7 @@ data class Grammar(
 
 data class Rule(val nonTerminal: NonTerminalToken, val rightSide: List<Token>, val action: String? = null)
 
-sealed class Token(open val value: String) {
+sealed class Token(open var value: String) {
     override fun equals(other: Any?): Boolean {
         if (other is Token) {
             return (value == other.value)
@@ -28,10 +28,10 @@ sealed class Token(open val value: String) {
     }
 }
 
-class NonTerminalToken(override val value: String) : Token(value)
+class NonTerminalToken(override var value: String) : Token(value)
 
-open class TerminalToken(override val value: String) : Token(value)
+open class TerminalToken(override var value: String) : Token(value)
 
-class EpsilonToken(override val value: String) : TerminalToken(value)
+class EpsilonToken(override var value: String) : TerminalToken(value)
 
 

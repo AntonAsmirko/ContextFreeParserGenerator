@@ -15,7 +15,6 @@ class TreeWithAttributesImpl(
                 .map { it.yield() },
             value.value
         )
-        this.value.value = "${value.value} $res"
         return res
     }
 }

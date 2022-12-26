@@ -14,7 +14,7 @@ import ru.anton.asmirko.tree.Tree
 import ru.anton.asmirko.tree.TreeWithAttributes
 
 fun main(args: Array<String>) {
-    runRegexParserFromGrammar(args[0])
+    runArithmeticLangParser(args[0])
 }
 
 fun initGrammarFromFile(grammarFile: String): Pair<Grammar, CommonTokenStream> {
@@ -47,12 +47,15 @@ fun runRegexParserFromGrammar(grammarFile: String) {
     }
 }
 
-fun runArithmeticLangParser(grammarFile: String){
+fun runArithmeticLangParser(grammarFile: String) {
     val (grammar, tokens) = initGrammarFromFile(grammarFile)
     val lexer1 = TokenLexer(tokens, "$")
     val parser1 = RegexParser(grammar, lexer1)
     val toPlot = listOf(
-        "a = 10\nb = 15\nc = 10 + 15",
+        """a = 10;
+           b = 15;
+           c = a + b + 1;"""
+            .trimMargin(),
     )
     for (item in toPlot) {
         val result = parser1.parse(listOf(item))

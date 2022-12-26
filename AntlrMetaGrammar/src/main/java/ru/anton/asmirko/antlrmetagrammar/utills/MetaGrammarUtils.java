@@ -40,9 +40,7 @@ public class MetaGrammarUtils {
                 if (nonTerminals.contains(text)) {
                     result.add(new NonTerminalToken(text));
                 } else {
-                    if (!skip.contains(text)) {
-                        result.add(new TerminalToken(text));
-                    }
+                    result.add(new TerminalToken(text));
                 }
             }
         } else {
@@ -83,6 +81,8 @@ public class MetaGrammarUtils {
                     traverseNode(cur, nonTerminals, alternatives.get(alternatives.size() - 1));
                 }
             }
+            var lastAlt = alternatives.get(alternatives.size() - 1);
+            lastAlt.remove(lastAlt.size() - 1);
             rules.addAll(alternatives.stream()
                     .map(it -> {
                         if (action.matches(it.get(it.size() - 1).getValue())) {
