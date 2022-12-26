@@ -1,14 +1,13 @@
 import com.google.common.truth.Truth;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import ru.anton.asmirko.antlrcalculator.ExprLexer;
 import ru.anton.asmirko.antlrcalculator.ExprToTreeVisitor;
-import ru.anton.asmirko.antlrcalculator.error.CalcParserException;
+import ru.anton.asmirko.commonantlr.error.CalcParserException;
 import ru.anton.asmirko.antlrcalculator.parser.ExprParserWithErrors;
 import ru.anton.asmirko.tree.TreeWithAttributes;
 
@@ -62,6 +61,6 @@ public class AntlrCalculatorTest {
         var tree = parser.prog();
         var exprTreeVisitor = new ExprToTreeVisitor();
         var treeInternal = exprTreeVisitor.visit(tree);
-        return ((TreeWithAttributes<String, String>) treeInternal).yield();
+        return ((TreeWithAttributes) treeInternal).yield();
     }
 }

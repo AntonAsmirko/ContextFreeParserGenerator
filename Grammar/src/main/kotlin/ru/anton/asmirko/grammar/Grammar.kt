@@ -9,7 +9,7 @@ data class Grammar(
     val latticeSubstitute: Set<Regex>
 )
 
-data class Rule(val nonTerminal: NonTerminalToken, val rightSide: List<Token>)
+data class Rule(val nonTerminal: NonTerminalToken, val rightSide: List<Token>, val action: String? = null)
 
 sealed class Token(open val value: String) {
     override fun equals(other: Any?): Boolean {

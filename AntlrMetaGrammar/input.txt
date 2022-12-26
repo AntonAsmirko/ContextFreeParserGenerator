@@ -1,4 +1,4 @@
-S : OR | ε;
+S : OR | ε ;
 OR : AND ORQ;
 ORQ : '|' OR | ε;
 AND : ST ANDQ;

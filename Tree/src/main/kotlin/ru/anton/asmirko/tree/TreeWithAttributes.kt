@@ -2,8 +2,8 @@ package ru.anton.asmirko.tree
 
 import ru.anton.asmirko.grammar.Token
 
-interface TreeWithAttributes<R> : Tree {
-    val code: ((MutableList<Tree>, Token) -> R)
+interface TreeWithAttributes {
+    val code: ((MutableList<String>, String) -> String)
 
-    fun yield(): R
+    fun yield(): String
 }

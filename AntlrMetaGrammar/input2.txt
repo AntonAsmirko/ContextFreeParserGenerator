@@ -1,5 +1,5 @@
-E : T X;
-X : '+' T X | ε;
-T : F Y;
-Y : '*' F Y | ε;
-F : /-?[1-9][0-9]*/ | '(' E ')';
+E : T X -{ children: List<String>, value: String -> val childrenInt = children.map{ it.toInt() }; childrenInt.reduce { acc: Int, i: Int ->  acc + i }.toString()}- ;
+X : '+' T X -{ children: List<String>, value: String -> val childrenInt = children.map{ it.toInt() }; childrenInt.reduce { acc: Int, i: Int ->  acc + i }.toString()}- | ε;
+T : F Y -{ children: List<String>, value: String -> val childrenInt = children.map{ it.toInt() }; childrenInt.reduce { acc: Int, i: Int ->  acc * i }.toString()}- ;
+Y : '*' F Y -{ children: List<String>, value: String -> val childrenInt = children.map{ it.toInt() }; childrenInt.reduce { acc: Int, i: Int ->  acc * i }.toString()}- | ε;
+F : /-?[1-9][0-9]*/ -{ children: List<String>, value: String -> children[0] }- | '(' E ')' -{ children: List<String>, value: String -> val childrenInt = children.map{ it.toInt() }; childrenInt.reduce { acc: Int, i: Int ->  acc + i }.toString()}- ;

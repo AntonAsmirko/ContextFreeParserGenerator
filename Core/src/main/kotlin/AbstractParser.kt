@@ -1,3 +1,5 @@
+import compile.getCompiler
+import compile.runScript
 import exception.EOFException
 import exception.UnmatchedSymbolException
 import ru.anton.asmirko.grammar.*
@@ -6,6 +8,7 @@ import ru.anton.asmirko.grammar_utills.FollowBuilder
 import ru.anton.asmirko.lexer.Lexer
 import ru.anton.asmirko.tree.Tree
 import ru.anton.asmirko.tree.TreeImpl
+import ru.anton.asmirko.tree.TreeWithAttributesImpl
 
 abstract class AbstractParser(private val grammar: Grammar, private val lexer: Lexer) : Parser {
 
@@ -27,12 +30,17 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
     private fun makeRuleLambda(nonTerm: Token): () -> Tree {
         return {
             val rulesWithNonTerm = grammar.rules.filter { it.nonTerminal == nonTerm }
-            val r = TreeImpl(value = nonTerm)
+            var r = TreeImpl(value = nonTerm)
             for (rule in rulesWithNonTerm) {
                 var wasEnter = false
                 if (firstOne(rule, lexer.curToken())) {
                     for (index in rule.rightSide.indices) {
                         wasEnter = true
+                        rule.action?.let {
+                            val compiled = COMPILER.runScript<(List<String>, String) -> String>(it)
+                            r = r.toTreeWithAttributes()
+                            (r as TreeWithAttributesImpl).code = compiled
+                        }
                         if (rule.rightSide[index] is TerminalToken) {
                             when {
                                 rule.rightSide[index] == grammar.epsilonToken -> {
@@ -53,7 +61,11 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
                                     )
                                 }
                                 else -> {
-                                    r.children.add(TreeImpl(value = lexer.curToken()))
+                                    if(grammar.latticeSubstitute.any { it.matches(lexer.curToken().value) }){
+                                        r.children.add(TreeWithAttributesImpl(value = lexer.curToken()))
+                                    } else {
+                                        r.children.add(TreeImpl(value = lexer.curToken()))
+                                    }
                                     lexer.nextToken()
                                 }
                             }
@@ -91,5 +103,6 @@ abstract class AbstractParser(private val grammar: Grammar, private val lexer: L
 
     companion object {
         val REGEX_ALWAYS_FALSE = Regex("$.^")
+        val COMPILER = getCompiler()
     }
 }
