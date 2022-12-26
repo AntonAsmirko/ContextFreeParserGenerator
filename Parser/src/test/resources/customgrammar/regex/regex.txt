@@ -1,0 +1,8 @@
+S : OR | ε ;
+OR : AND ORQ;
+ORQ : '|' OR | ε;
+AND : ST ANDQ;
+ANDQ : AND | ε;
+ST : C STQ;
+STQ : '*' STQ | ε;
+C : '(' OR ')' | /[a-z]/;
